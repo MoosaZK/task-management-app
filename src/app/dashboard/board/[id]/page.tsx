@@ -13,13 +13,34 @@ import { ROUTES } from '@/utils/constants';
 import type { Board, List, Task } from '@/types';
 
 interface BoardPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function BoardPage({ params }: BoardPageProps) {
+  const [boardId, setBoardId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadParams = async () => {
+      const resolvedParams = await params;
+      setBoardId(resolvedParams.id);
+    };
+    loadParams();
+  }, [params]);
+
+  if (!boardId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ProtectedRoute>
-      <BoardContent boardId={params.id} />
+      <BoardContent boardId={boardId} />
     </ProtectedRoute>
   );
 }
@@ -188,7 +209,7 @@ function BoardContent({ boardId }: { boardId: string }) {
             {error || 'Board not found'}
           </h3>
           <p className="text-gray-600 mb-6">
-            The board you're looking for doesn't exist or you don't have access to it.
+            The board you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.
           </p>
           <button
             onClick={() => router.push(ROUTES.DASHBOARD)}

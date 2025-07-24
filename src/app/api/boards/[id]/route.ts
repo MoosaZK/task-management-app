@@ -10,7 +10,7 @@ const supabase = createClient(
 // GET /api/boards/[id] - Get a specific board with lists and tasks
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -25,7 +25,8 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const board = await getBoardById(params.id);
+    const { id } = await params;
+    const board = await getBoardById(id);
     
     if (!board) {
       return NextResponse.json(
@@ -56,7 +57,7 @@ export async function GET(
 // PUT /api/boards/[id] - Update a board
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -71,8 +72,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    const { id } = await params;
+    
     // Check if board exists and user owns it
-    const existingBoard = await getBoardById(params.id);
+    const existingBoard = await getBoardById(id);
     if (!existingBoard) {
       return NextResponse.json(
         { error: 'Board not found' },
@@ -90,7 +93,7 @@ export async function PUT(
     const body = await request.json();
     const { title, description } = body;
 
-    const updatedBoard = await updateBoard(params.id, { title, description });
+    const updatedBoard = await updateBoard(id, { title, description });
     
     if (!updatedBoard) {
       return NextResponse.json(
@@ -113,7 +116,7 @@ export async function PUT(
 // DELETE /api/boards/[id] - Delete a board
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -128,8 +131,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    const { id } = await params;
+    
     // Check if board exists and user owns it
-    const existingBoard = await getBoardById(params.id);
+    const existingBoard = await getBoardById(id);
     if (!existingBoard) {
       return NextResponse.json(
         { error: 'Board not found' },
@@ -144,7 +149,7 @@ export async function DELETE(
       );
     }
 
-    const success = await deleteBoard(params.id);
+    const success = await deleteBoard(id);
     
     if (!success) {
       return NextResponse.json(

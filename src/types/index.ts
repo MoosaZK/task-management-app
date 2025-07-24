@@ -78,5 +78,5 @@ export interface DragItem {
 export interface ModalState {
   isOpen: boolean;
   type: 'create-board' | 'create-list' | 'create-task' | 'edit-task' | null;
-  data?: any;
+  data?: Board | List | Task | null;
 } 

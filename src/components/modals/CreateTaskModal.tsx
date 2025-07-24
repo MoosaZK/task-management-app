@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createTask, updateTask } from '@/lib/database';
 import { TASK_PRIORITIES, TASK_STATUSES } from '@/utils/constants';
-import type { Task } from '@/types';
+import type { Task, CreateTaskData } from '@/types';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -81,7 +81,7 @@ export function CreateTaskModal({
           setError('Failed to update task');
         }
       } else {
-        const newTask = await createTask(taskData as any);
+        const newTask = await createTask(taskData as CreateTaskData);
         if (newTask) {
           onTaskCreated?.(newTask);
           handleClose();
@@ -108,6 +108,14 @@ export function CreateTaskModal({
     setError('');
     setLoading(false);
     onClose();
+  };
+
+  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPriority(e.target.value as 'low' | 'medium' | 'high');
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatus(e.target.value as 'todo' | 'in_progress' | 'completed');
   };
 
   return (
@@ -149,7 +157,7 @@ export function CreateTaskModal({
             </label>
             <select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
+              onChange={handlePriorityChange}
               disabled={loading}
               className="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -166,7 +174,7 @@ export function CreateTaskModal({
               </label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
+                onChange={handleStatusChange}
                 disabled={loading}
                 className="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { createSampleBoard } from '@/lib/database';
+import type { User } from '@supabase/supabase-js';
 
 export interface AuthCredentials {
   email: string;
@@ -10,7 +11,7 @@ export interface AuthCredentials {
 export interface AuthResponse {
   success: boolean;
   error?: string;
-  user?: any;
+  user?: User | null;
 }
 
 // Sign up new user

@@ -10,7 +10,7 @@ const supabase = createClient(
 // PUT /api/tasks/[id] - Update a task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -25,12 +25,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { title, description, due_date, priority, status, list_id, position } = body;
 
     // Handle task move operation
     if (list_id !== undefined && position !== undefined) {
-      const success = await moveTask(params.id, list_id, position);
+      const success = await moveTask(id, list_id, position);
       if (!success) {
         return NextResponse.json(
           { error: 'Failed to move task' },
@@ -39,7 +40,7 @@ export async function PUT(
       }
     }
 
-    const updatedTask = await updateTask(params.id, {
+    const updatedTask = await updateTask(id, {
       title,
       description,
       due_date,
@@ -70,7 +71,7 @@ export async function PUT(
 // DELETE /api/tasks/[id] - Delete a task
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -85,7 +86,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const success = await deleteTask(params.id);
+    const { id } = await params;
+    const success = await deleteTask(id);
     
     if (!success) {
       return NextResponse.json(
